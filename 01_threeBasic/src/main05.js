@@ -1,11 +1,9 @@
 import * as Three from "three";
-// 目标:双击控制全屏
+// 目标:掌握gsap实现动画效果
 // 引入控制器,这里引入的是轨迹控制器,还有第一人称控制器等
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 // 引入动画库
 import gsap from "gsap";
-// 引入gui
-import dat from 'dat.gui'
 // 创建场景
 const scene = new Three.Scene();
 
@@ -40,17 +38,31 @@ document.body.appendChild(renderer.domElement);
 // cube.scale.set(3,2,1)
 cube.scale.x = 2;
 
-// 监听鼠标书双击事件,控制屏幕全屏
+let animate = gsap.to(cube.position, {
+  x: 5,
+  duration: 5,
+  // 设置重复次数  无限次数-1
+  repeat: Infinity,
+  // 往返运动
+  yoyo: true,
+  // 延迟时间
+  delay: 0.1,
+  onComplete: () => {
+    console.log("渲染完成");
+  },
+  onStart: () => {
+    console.log("动画开始");
+  },
+});
+// 监听鼠标书双击事件,双击时暂停
 window.addEventListener("dblclick", () => {
   console.log("点击");
-  // 查看是否有全屏元素
-  const isFull = document.fullscreenElement;
-  if (!isFull) {
-    // 将渲染器中的画布全屏
-    renderer.domElement.requestFullscreen();
-  }else{
-    // 退出全屏不需要在画布上退出
-    document.exitFullscreen()
+  debugger;
+  // 如果物体是活动状态就暂停，否则恢复运动状态
+  if (animate.isActive()) {
+    animate.pause();
+  } else {
+    animate.resume();
   }
 });
 gsap.to(cube.rotation, { x: 2 * Math.PI, duration: 5, ease: "power1.inOut" });
@@ -75,40 +87,11 @@ window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
 
   // 更新投影矩阵
-  camera.updateProjectionMatrix();
+  camera.updateProjectionMatrix()
 
   // 更新渲染器 传入宽高
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(window.innerWidth,window.innerHeight)
 
   // 设置像素比
-  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setPixelRatio(window.devicePixelRatio)
 });
-
-// 设置gui
-const gui=new dat.GUI()
-// 改变位置，设置x的值 最小，最大，每次改变，名字
-gui.add(cube.position,'x').min(0).max(5).onFinishChange((value)=>{
-  // 鼠标放开
-  console.log(value,'放开');
-})
-// 设置物体颜色
-const params={
-  color:'#00ff00',
-  fn:()=>{
-    gsap.to(cube.position,{x:5,duration:5,yoyo:true,repeat:-1})
-  }
-}
-gui.addColor(params,"color").onChange((value)=>{
-  console.log(value);
-  // 设置颜色
-  cube.material.color.set(value)
-})
-gui.add(cube,'visible').name('是否显示')
-
-// gui设置文件夹
-let folder=gui.addFolder('设置立方体')
-// 设置立方体变为线体
-folder.add(cube.material,'wireframe')
-
-// 立方体开始运动
-folder.add(params,'fn')
