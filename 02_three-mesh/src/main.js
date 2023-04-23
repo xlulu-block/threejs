@@ -1,11 +1,7 @@
 import * as Three from "three";
-// 目标:初步认识几何体
+// 目标:打造酷炫三角形
 // 引入控制器,这里引入的是轨迹控制器,还有第一人称控制器等
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-// 引入动画库
-import gsap from "gsap";
-// 引入gui
-import dat from "dat.gui";
 // 创建场景
 const scene = new Three.Scene();
 
@@ -19,19 +15,26 @@ const camera = new Three.PerspectiveCamera(
 // 设置像机位置 xyz
 camera.position.set(0, 0, 10);
 
-// 场景添加物体
-const geometry = new Three.BufferGeometry();
-// 创建一个面的六个顶点
-const vertices = new Float32Array([
-  -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
-  -1.0, -1.0, 1.0,
-]);
-// 将顶点信息加入geometry   vertices  每三个为一组数据
-geometry.setAttribute("position", new Three.BufferAttribute(vertices, 3));
-const material = new Three.MeshBasicMaterial({ color: 0x00ff00 });
-// 根据集合体和材质创建物体
-const cube = new Three.Mesh(geometry, material);
-scene.add(cube);
+// 随机生成50个三角形
+for (let i = 0; i < 50; i++) {
+  const geometry = new Three.BufferGeometry();
+  const positionArray = new Float32Array(9);
+  // 每一个三角形需要三个顶点，每一个顶点需要三个值（x,y,z）
+  for (let j = 0; j < 9; j++) {
+    positionArray[j] = Math.random() * 5;
+  }
+  // 将顶点信息加入geometry   vertices  每三个为一组数据
+  geometry.setAttribute(
+    "position",
+    new Three.BufferAttribute(positionArray, 3)
+  );
+  // 随机颜色
+  let color = new Three.Color(Math.random(), Math.random(), Math.random());
+  const material = new Three.MeshBasicMaterial({ color });
+  // 根据集合体和材质创建物体
+  const mesh = new Three.Mesh(geometry, material);
+  scene.add(mesh);
+}
 
 // 场景添加坐标辅助线,参数为辅助线的长度
 const axesHelper = new Three.AxesHelper(5);
@@ -44,9 +47,6 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 // 将渲染器的canvas加到body上
 document.body.appendChild(renderer.domElement);
 
-// 设置物体缩放大小
-// cube.scale.set(3,2,1)
-cube.scale.x = 2;
 
 // 监听鼠标书双击事件,控制屏幕全屏
 window.addEventListener("dblclick", () => {
@@ -61,7 +61,6 @@ window.addEventListener("dblclick", () => {
     document.exitFullscreen();
   }
 });
-gsap.to(cube.rotation, { x: 2 * Math.PI, duration: 5, ease: "power1.inOut" });
 
 // 创建轨道控制器
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -92,35 +91,3 @@ window.addEventListener("resize", () => {
   renderer.setPixelRatio(window.devicePixelRatio);
 });
 
-// 设置gui
-const gui = new dat.GUI();
-// 改变位置，设置x的值 最小，最大，每次改变，名字
-gui
-  .add(cube.position, "x")
-  .min(0)
-  .max(5)
-  .onFinishChange((value) => {
-    // 鼠标放开
-    console.log(value, "放开");
-  });
-// 设置物体颜色
-const params = {
-  color: "#00ff00",
-  move: () => {
-    gsap.to(cube.position, { x: 5, duration: 5, yoyo: true, repeat: -1 });
-  },
-};
-gui.addColor(params, "color").onChange((value) => {
-  console.log(value);
-  // 设置颜色
-  cube.material.color.set(value);
-});
-gui.add(cube, "visible").name("是否显示");
-
-// gui设置文件夹
-let folder = gui.addFolder("设置立方体");
-// 设置立方体变为线体
-folder.add(cube.material, "wireframe").name("线条实体切换");
-
-// 立方体开始运动  fn是函数名
-folder.add(params, "move").name("立方体运动");

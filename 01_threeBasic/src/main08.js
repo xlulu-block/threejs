@@ -1,11 +1,11 @@
 import * as Three from "three";
-// 目标:初步认识几何体
+// 目标:双击控制全屏
 // 引入控制器,这里引入的是轨迹控制器,还有第一人称控制器等
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 // 引入动画库
 import gsap from "gsap";
 // 引入gui
-import dat from "dat.gui";
+import dat from 'dat.gui'
 // 创建场景
 const scene = new Three.Scene();
 
@@ -20,16 +20,8 @@ const camera = new Three.PerspectiveCamera(
 camera.position.set(0, 0, 10);
 
 // 场景添加物体
-const geometry = new Three.BufferGeometry();
-// 创建一个面的六个顶点
-const vertices = new Float32Array([
-  -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
-  -1.0, -1.0, 1.0,
-]);
-// 将顶点信息加入geometry   vertices  每三个为一组数据
-geometry.setAttribute("position", new Three.BufferAttribute(vertices, 3));
+const geometry = new Three.BoxGeometry(1, 1, 1);
 const material = new Three.MeshBasicMaterial({ color: 0x00ff00 });
-// 根据集合体和材质创建物体
 const cube = new Three.Mesh(geometry, material);
 scene.add(cube);
 
@@ -56,9 +48,9 @@ window.addEventListener("dblclick", () => {
   if (!isFull) {
     // 将渲染器中的画布全屏
     renderer.domElement.requestFullscreen();
-  } else {
+  }else{
     // 退出全屏不需要在画布上退出
-    document.exitFullscreen();
+    document.exitFullscreen()
   }
 });
 gsap.to(cube.rotation, { x: 2 * Math.PI, duration: 5, ease: "power1.inOut" });
@@ -93,34 +85,30 @@ window.addEventListener("resize", () => {
 });
 
 // 设置gui
-const gui = new dat.GUI();
+const gui=new dat.GUI()
 // 改变位置，设置x的值 最小，最大，每次改变，名字
-gui
-  .add(cube.position, "x")
-  .min(0)
-  .max(5)
-  .onFinishChange((value) => {
-    // 鼠标放开
-    console.log(value, "放开");
-  });
+gui.add(cube.position,'x').min(0).max(5).onFinishChange((value)=>{
+  // 鼠标放开
+  console.log(value,'放开');
+})
 // 设置物体颜色
-const params = {
-  color: "#00ff00",
-  move: () => {
-    gsap.to(cube.position, { x: 5, duration: 5, yoyo: true, repeat: -1 });
-  },
-};
-gui.addColor(params, "color").onChange((value) => {
+const params={
+  color:'#00ff00',
+  move:()=>{
+    gsap.to(cube.position,{x:5,duration:5,yoyo:true,repeat:-1})
+  }
+}
+gui.addColor(params,"color").onChange((value)=>{
   console.log(value);
   // 设置颜色
-  cube.material.color.set(value);
-});
-gui.add(cube, "visible").name("是否显示");
+  cube.material.color.set(value)
+})
+gui.add(cube,'visible').name('是否显示')
 
 // gui设置文件夹
-let folder = gui.addFolder("设置立方体");
+let folder=gui.addFolder('设置立方体')
 // 设置立方体变为线体
-folder.add(cube.material, "wireframe").name("线条实体切换");
+folder.add(cube.material,'wireframe').name('线条实体切换')
 
 // 立方体开始运动  fn是函数名
-folder.add(params, "move").name("立方体运动");
+folder.add(params,'move').name('立方体运动')
