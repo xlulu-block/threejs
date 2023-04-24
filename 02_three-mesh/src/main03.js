@@ -1,5 +1,9 @@
 import * as Three from "three";
-// 目标:设置纹理透明
+// 引入动画库
+import gsap from "gsap";
+// 引入gui
+import dat from 'dat.gui'
+// 目标:设置纹理和材质
 // 引入控制器,这里引入的是轨迹控制器,还有第一人称控制器等
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 // 创建场景
@@ -23,23 +27,12 @@ const textureLoader=new Three.TextureLoader()
 
 // 路径从dist文件下开始读取
 const texture=textureLoader.load('./textures/1.jpg')
-// 透明贴图
-const alphaMapTexture=textureLoader.load('./textures/2.jpg')
-// 设置中心点，默认的是0，0左下角
-texture.center.set(0.5,0.5)
-// 纹理图片旋转45度
-// texture.rotation=Math.PI/4
-// 纹理显示算法设置  最大和最小差值
-texture.magFilter=Three.NearestFilter
-texture.minFilter=Three.NearestFilter
-texture.minFilter=Three.LinearFilter
+
 
 // 材质  是一种 Three.js 材质类型，它提供基本的不受光照影响的颜色或纹理贴图效果。
 const basicMaterial=new Three.MeshBasicMaterial({
   color:'skyblue',
-  map:texture,
-  alphaMap:alphaMapTexture,
-  transparent:true
+  map:texture
 })
 
 //Mesh 将一个几何体和材质组合成一个 Mesh 对象后，可以将它添加到场景中进行渲染。
@@ -70,7 +63,7 @@ window.addEventListener("dblclick", () => {
     document.exitFullscreen();
   }
 });
-
+gsap.to(cube.rotation, { x: 2 * Math.PI, duration: 5, ease: "power1.inOut" });
 // 创建轨道控制器
 const controls = new OrbitControls(camera, renderer.domElement);
 // 设置控制器的阻尼，操作上带来重量感
@@ -99,3 +92,31 @@ window.addEventListener("resize", () => {
   // 设置像素比
   renderer.setPixelRatio(window.devicePixelRatio);
 });
+// 设置gui
+const gui=new dat.GUI()
+// 改变位置，设置x的值 最小，最大，每次改变，名字
+gui.add(cube.position,'x').min(0).max(5).onFinishChange((value)=>{
+  // 鼠标放开
+  console.log(value,'放开');
+})
+// 设置物体颜色
+const params={
+  color:'#00ff00',
+  move:()=>{
+    gsap.to(cube.position,{x:5,duration:5,yoyo:true,repeat:-1})
+  }
+}
+gui.addColor(params,"color").onChange((value)=>{
+  console.log(value);
+  // 设置颜色
+  cube.material.color.set(value)
+})
+gui.add(cube,'visible').name('是否显示')
+
+// gui设置文件夹
+let folder=gui.addFolder('设置立方体')
+// 设置立方体变为线体
+folder.add(cube.material,'wireframe').name('线条实体切换')
+
+// 立方体开始运动  fn是函数名
+folder.add(params,'move').name('立方体运动')

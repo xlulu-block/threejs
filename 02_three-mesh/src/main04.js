@@ -1,5 +1,5 @@
 import * as Three from "three";
-// 目标:设置纹理透明
+// 目标:纹理算法自动缩放
 // 引入控制器,这里引入的是轨迹控制器,还有第一人称控制器等
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 // 创建场景
@@ -23,8 +23,6 @@ const textureLoader=new Three.TextureLoader()
 
 // 路径从dist文件下开始读取
 const texture=textureLoader.load('./textures/1.jpg')
-// 透明贴图
-const alphaMapTexture=textureLoader.load('./textures/2.jpg')
 // 设置中心点，默认的是0，0左下角
 texture.center.set(0.5,0.5)
 // 纹理图片旋转45度
@@ -37,9 +35,7 @@ texture.minFilter=Three.LinearFilter
 // 材质  是一种 Three.js 材质类型，它提供基本的不受光照影响的颜色或纹理贴图效果。
 const basicMaterial=new Three.MeshBasicMaterial({
   color:'skyblue',
-  map:texture,
-  alphaMap:alphaMapTexture,
-  transparent:true
+  map:texture
 })
 
 //Mesh 将一个几何体和材质组合成一个 Mesh 对象后，可以将它添加到场景中进行渲染。

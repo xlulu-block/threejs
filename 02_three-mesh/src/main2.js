@@ -1,5 +1,5 @@
 import * as Three from "three";
-// 目标:设置纹理透明
+// 目标:打造酷炫三角形
 // 引入控制器,这里引入的是轨迹控制器,还有第一人称控制器等
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 // 创建场景
@@ -15,36 +15,32 @@ const camera = new Three.PerspectiveCamera(
 // 设置像机位置 xyz
 camera.position.set(0, 0, 10);
 
-// 添加物体 BoxBufferGeometry 是 Three.js 中的一个几何体对象  参数长宽高
-const cubeGeometry=new Three.BoxGeometry(1,1,1)
-
-// 设置纹理
-const textureLoader=new Three.TextureLoader()
-
-// 路径从dist文件下开始读取
-const texture=textureLoader.load('./textures/1.jpg')
-// 透明贴图
-const alphaMapTexture=textureLoader.load('./textures/2.jpg')
-// 设置中心点，默认的是0，0左下角
-texture.center.set(0.5,0.5)
-// 纹理图片旋转45度
-// texture.rotation=Math.PI/4
-// 纹理显示算法设置  最大和最小差值
-texture.magFilter=Three.NearestFilter
-texture.minFilter=Three.NearestFilter
-texture.minFilter=Three.LinearFilter
-
-// 材质  是一种 Three.js 材质类型，它提供基本的不受光照影响的颜色或纹理贴图效果。
-const basicMaterial=new Three.MeshBasicMaterial({
-  color:'skyblue',
-  map:texture,
-  alphaMap:alphaMapTexture,
-  transparent:true
-})
-
-//Mesh 将一个几何体和材质组合成一个 Mesh 对象后，可以将它添加到场景中进行渲染。
-const cube=new Three.Mesh(cubeGeometry,basicMaterial)
-scene.add(cube)
+// 随机生成50个三角形
+for (let i = 0; i < 50; i++) {
+  const geometry = new Three.BufferGeometry();
+  const positionArray = new Float32Array(9);
+  // 每一个三角形需要三个顶点，每一个顶点需要三个值（x,y,z）
+  for (let j = 0; j < 9; j++) {
+    // 设置为中心点，-5到5
+    positionArray[j] = Math.random()*10 - 5;
+  }
+  // 将顶点信息加入geometry   vertices  每三个为一组数据
+  geometry.setAttribute(
+    "position",
+    new Three.BufferAttribute(positionArray, 3)
+  );
+  // 随机颜色
+  let color = new Three.Color(Math.random(), Math.random(), Math.random());
+  // 设置材质颜色，是否透明，透明度
+  const material = new Three.MeshBasicMaterial({
+    color,
+    transparent: true,
+    opacity: 0.5,
+  });
+  // 根据集合体和材质创建物体
+  const mesh = new Three.Mesh(geometry, material);
+  scene.add(mesh);
+}
 
 // 场景添加坐标辅助线,参数为辅助线的长度
 const axesHelper = new Three.AxesHelper(5);
